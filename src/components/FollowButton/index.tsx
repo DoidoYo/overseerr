@@ -1,24 +1,24 @@
 import ButtonWithDropdown from '@app/components/Common/ButtonWithDropdown';
 // import RequestModal from '@app/components/RequestModal';
-import useSettings from '@app/hooks/useSettings';
+// import useSettings from '@app/hooks/useSettings';
 import { useToasts } from 'react-toast-notifications';
-import { Permission, useUser } from '@app/hooks/useUser';
-import globalMessages from '@app/i18n/globalMessages';
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import useSWR, { mutate } from 'swr';
-import {
-  CheckIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/solid';
-import { MediaRequestStatus, MediaStatus, MediaFollow } from '@server/constants/media';
+import { useUser } from '@app/hooks/useUser';
+// import globalMessages from '@app/i18n/globalMessages';
+// import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import useSWR from 'swr';
+// import {
+//   CheckIcon,
+//   InformationCircleIcon,
+//   XMarkIcon,
+// } from '@heroicons/react/24/solid';
+// import { MediaRequestStatus, MediaStatus, MediaFollow } from '@server/constants/media';
 import type Media from '@server/entity/Media';
-import type { MediaRequest } from '@server/entity/MediaRequest';
+// import type { MediaRequest } from '@server/entity/MediaRequest';
 import axios from 'axios';
-import { truncate } from 'fs';
-import { useMemo, useState } from 'react';
+// import { truncate } from 'fs';
+// import { useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { TvDetails } from '@server/models/Tv';
+import type { TvDetails } from '@server/models/Tv';
 
 interface ButtonOption {
   id: string;
@@ -45,17 +45,18 @@ const FollowButton = ({
   tmdbId,
   onUpdate,
   media,
-  mediaType,
-  isShowComplete = false,
-  is4kShowComplete = false,
+  // mediaType,
+  // isShowComplete = false,
+  // is4kShowComplete = false,
 }: FollowButtonProps) => {
 
   //some initialization code
   const { addToast } = useToasts();
   const intl = useIntl();
-  const { user, hasPermission } = useUser();
+  // const { user, hasPermission } = useUser();
+  const { user } = useUser();
   const userFollowing = media?.followIds.includes(user?.id ?? -1);
-  const { data, error } = useSWR<TvDetails>(`/api/v1/tv/${media?.tmdbId}`);
+  const { data } = useSWR<TvDetails>(`/api/v1/tv/${tmdbId}`);
   //find request/media. send update to api
 
   //onModify = async
@@ -85,7 +86,12 @@ const FollowButton = ({
             { appearance: 'success', autoDismiss: true }
           );
         } catch (error) {
-          console.error(error);
+          addToast(
+            <span>
+              Failed to follow {data?.name}. Please try again.
+            </span>,
+            { appearance: 'error', autoDismiss: true }
+          );
         }
       },
     });
@@ -110,13 +116,18 @@ const FollowButton = ({
             { appearance: 'success', autoDismiss: true }
           );
         } catch (error) {
-          console.error(error);
+          addToast(
+            <span>
+              Failed to follow {data?.name}. Please try again.
+            </span>,
+            { appearance: 'error', autoDismiss: true }
+          );
         }
       },
     });
   }
 
-  const [buttonOne, ...others] = buttons;
+  const [buttonOne] = buttons;
 
   //check if a button was added
   if (!buttonOne) {
