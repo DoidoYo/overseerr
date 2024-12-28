@@ -32,6 +32,12 @@ class Season {
   @UpdateDateColumn()
   public updatedAt: Date;
 
+  @Column({ type: 'int', default: 0 })
+  public totalEpisodesNumber: number;
+
+  @Column({ type: 'int', default: 0 })
+  public episodesNumber: number;
+
   constructor(init?: Partial<Season>) {
     Object.assign(this, init);
   }

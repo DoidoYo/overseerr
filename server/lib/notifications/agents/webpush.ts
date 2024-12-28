@@ -74,6 +74,9 @@ class WebPushAgent
           payload.request?.requestedBy.displayName
         }.`;
         break;
+      case Notification.MEDIA_EPISODE_AVAILABLE:
+        message = `New Episode Now Available!`;
+        break;
       case Notification.MEDIA_AVAILABLE:
         message = `Your ${
           is4k ? '4K ' : ''

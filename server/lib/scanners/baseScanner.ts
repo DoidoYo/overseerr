@@ -285,6 +285,10 @@ class BaseScanner<T> {
               ? MediaStatus.PROCESSING
               : existingSeason.status;
 
+          //GBF updating the episodes and total episodes
+          existingSeason.episodesNumber = season.episodes;
+          existingSeason.totalEpisodesNumber = season.totalEpisodes;
+
           // Same thing here, except we only do updates if 4k is enabled
           existingSeason.status4k =
             (this.enable4kShow &&
@@ -301,6 +305,9 @@ class BaseScanner<T> {
           newSeasons.push(
             new Season({
               seasonNumber: season.seasonNumber,
+               //GBF updating the episodes and total episodes
+              episodesNumber: season.episodes,
+              totalEpisodesNumber: season.totalEpisodes,
               status:
                 season.totalEpisodes === season.episodes && season.episodes > 0
                   ? MediaStatus.AVAILABLE

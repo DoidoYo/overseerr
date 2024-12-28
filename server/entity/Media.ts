@@ -84,6 +84,22 @@ class Media {
   @Index()
   public imdbId?: string;
 
+  //FOLLOW GBF
+  @Column('simple-array', {
+    default: '[]',
+    transformer: {
+      to: (value: number[]): string[] => {
+        if (!value) return [];
+        return value.filter(v => !isNaN(v)).map(String);
+      },
+      from: (value: string[]): number[] => {
+        if (!value) return [];
+        return value.map(Number).filter(v => !isNaN(v));
+      }
+    }
+  })
+  public followIds: number[];
+
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;
 
@@ -154,6 +170,25 @@ class Media {
 
   constructor(init?: Partial<Media>) {
     Object.assign(this, init);
+  }
+
+  public addFollower(userId: number): void {
+    if (!this.followIds) {
+      this.followIds = [];
+    }
+    // Strict number comparison
+    const exists = this.followIds.some(id => Number(id) === userId);
+    if (!exists) {
+      this.followIds.push(userId);
+    }
+  }
+
+  public removeFollower(userId: number): void {
+    if (!this.followIds) {
+      this.followIds = [];
+    }
+    // Convert any existing string values to numbers before filtering
+    this.followIds = this.followIds.map(Number).filter((id) => id !== userId);
   }
 
   @AfterLoad()

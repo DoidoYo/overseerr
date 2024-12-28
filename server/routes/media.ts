@@ -90,7 +90,7 @@ mediaRoutes.get('/', async (req, res, next) => {
 mediaRoutes.post<
   {
     id: string;
-    status: 'available' | 'partial' | 'processing' | 'pending' | 'unknown';
+    status: 'available' | 'partial' | 'processing' | 'pending' | 'unknown' | 'follow' | 'unfollow';
   },
   Media
 >(
@@ -108,8 +108,15 @@ mediaRoutes.post<
     }
 
     const is4k = Boolean(req.body.is4k);
+    const userId = Number(req.body.userId);
 
     switch (req.params.status) {
+      case 'follow':
+        media.addFollower(userId);
+        break;
+      case 'unfollow':
+        media.removeFollower(userId);
+        break;
       case 'available':
         media[is4k ? 'status4k' : 'status'] = MediaStatus.AVAILABLE;
         if (media.mediaType === MediaType.TV) {

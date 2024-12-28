@@ -8,6 +8,7 @@ import { getRepository } from '@server/datasource';
 import Media from '@server/entity/Media';
 import { MediaRequest } from '@server/entity/MediaRequest';
 import Season from '@server/entity/Season';
+import { User } from '@server/entity/User';
 import notificationManager, { Notification } from '@server/lib/notifications';
 import logger from '@server/logger';
 import { truncate } from 'lodash';
@@ -103,6 +104,64 @@ export class MediaSubscriber implements EntitySubscriberInterface<Media> {
     const changedSeasons = newAvailableSeasons.filter(
       (seasonNumber) => !oldAvailableSeasons.includes(seasonNumber)
     );
+
+    //MY TEST GBF
+    // need to find a way to include individual episodes inside of the season
+    const newAvailableEpisodes = entity.seasons.filter(
+      (season) => {
+        const status = season[is4k ? 'status4k' : 'status'];
+        return status === MediaStatus.AVAILABLE || status === MediaStatus.PARTIALLY_AVAILABLE;
+      }
+    ).map((season) => ({seasonNumber: season.seasonNumber, episodes: season.episodesNumber, totalEpisodes: season.totalEpisodesNumber}));
+
+    const oldAvailableEpisodes = oldSeasons
+      .filter(
+        (season) => {
+          const status = season[is4k ? 'status4k' : 'status'];
+          return status === MediaStatus.AVAILABLE || status === MediaStatus.PARTIALLY_AVAILABLE;
+        }
+      ).map((season) => ({seasonNumber: season.seasonNumber, episodes: season.episodesNumber, totalEpisodes: season.totalEpisodesNumber}));
+
+    const changedEpisodes = newAvailableEpisodes.filter(newSeason => {
+      const oldSeason = oldAvailableEpisodes.find(
+        old => old.seasonNumber === newSeason.seasonNumber
+      );
+      // Include season if it's either new or has a different episode count
+      return !oldSeason || newSeason.episodes > oldSeason.episodes;
+    }).map(season => season.seasonNumber);
+
+    //END MY TEST
+    if (changedEpisodes.length > 0) {
+      const tmdb = new TheMovieDb();
+      const userRepository = getRepository(User);
+      // const requestRepository = getRepository(MediaRequest);
+      // const processedSeasons: number[] = [];
+
+      try {
+        const tv = await tmdb.getTvShow({ tvId: entity.tmdbId });
+        for (const userID of entity.followIds) {
+          const user = await userRepository.findOne({where: {id: userID}});
+          if (user) {
+            notificationManager.sendNotification(Notification.MEDIA_EPISODE_AVAILABLE, {
+              event: `New Episode Now Available`,
+              subject: `${tv.name}${
+                tv.first_air_date ? ` (${tv.first_air_date.slice(0, 4)})` : ''
+              }`,
+              notifyAdmin: false,
+              notifySystem: true,
+              notifyUser: user,
+            });
+          }
+        }
+      } catch (e) {
+        logger.error('Something went wrong sending media notification(s)', {
+          label: 'Notifications',
+          errorMessage: e.message,
+          mediaId: entity.id,
+        });
+      }
+
+    }
 
     if (changedSeasons.length > 0) {
       const tmdb = new TheMovieDb();

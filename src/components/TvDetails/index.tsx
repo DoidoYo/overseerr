@@ -20,6 +20,7 @@ import MediaSlider from '@app/components/MediaSlider';
 import PersonCard from '@app/components/PersonCard';
 import RequestButton from '@app/components/RequestButton';
 import RequestModal from '@app/components/RequestModal';
+import FollowButton from '@app/components/FollowButton';
 import Slider from '@app/components/Slider';
 import StatusBadge from '@app/components/StatusBadge';
 import Season from '@app/components/TvDetails/Season';
@@ -405,6 +406,14 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
         </div>
         <div className="media-actions">
           <PlayButton links={mediaLinks} />
+          <FollowButton
+            mediaType="tv"
+            onUpdate={() => revalidate()}
+            tmdbId={data?.id}
+            media={data?.mediaInfo}
+            isShowComplete={isComplete}
+            is4kShowComplete={is4kComplete}
+          />
           <RequestButton
             mediaType="tv"
             onUpdate={() => revalidate()}

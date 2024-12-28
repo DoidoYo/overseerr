@@ -80,6 +80,9 @@ const TitleCard = ({
     { type: 'or' }
   );
 
+  const showFollowButton = false;
+  // const showRequestButton = false;
+
   return (
     <div
       className={canExpand ? 'w-full' : 'w-36 sm:w-36 md:w-44'}
@@ -206,10 +209,10 @@ const TitleCard = ({
                   <div className="flex h-full w-full items-end">
                     <div
                       className={`px-2 text-white ${
-                        !showRequestButton ||
+                        (!showRequestButton && !showFollowButton) ||
                         (currentStatus && currentStatus !== MediaStatus.UNKNOWN)
                           ? 'pb-2'
-                          : 'pb-11'
+                          : 'pb-11' //up space pb-20 for 2 buttons
                       }`}
                     >
                       {year && (
@@ -233,7 +236,7 @@ const TitleCard = ({
                         className="whitespace-normal text-xs"
                         style={{
                           WebkitLineClamp:
-                            !showRequestButton ||
+                            !showRequestButton || !showFollowButton ||
                             (currentStatus &&
                               currentStatus !== MediaStatus.UNKNOWN)
                               ? 5
@@ -267,6 +270,20 @@ const TitleCard = ({
                       <span>{intl.formatMessage(globalMessages.request)}</span>
                     </Button>
                   )}
+                  {(showFollowButton && !showRequestButton) && (!currentStatus || currentStatus === MediaStatus.UNKNOWN) && (
+                  <Button
+                  buttonType="primary"
+                  buttonSize="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log("Title Test Press");
+                  }}
+                  className="h-7 w-full"
+                >
+                  {/* <ArrowDownTrayIcon /> */}
+                  <span>{"Follow"}</span>
+                </Button>
+                )}
               </div>
             </div>
           </Transition>

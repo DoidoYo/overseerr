@@ -5759,7 +5759,16 @@ paths:
           example: available
           schema:
             type: string
-            enum: [available, partial, processing, pending, unknown]
+            enum:
+              [
+                available,
+                partial,
+                processing,
+                pending,
+                unknown,
+                follow,
+                unfollow,
+              ]
       requestBody:
         content:
           application/json:
