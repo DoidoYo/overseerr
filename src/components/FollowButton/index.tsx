@@ -1,9 +1,11 @@
 import ButtonWithDropdown from '@app/components/Common/ButtonWithDropdown';
 // import RequestModal from '@app/components/RequestModal';
 import useSettings from '@app/hooks/useSettings';
+import { useToasts } from 'react-toast-notifications';
 import { Permission, useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import useSWR, { mutate } from 'swr';
 import {
   CheckIcon,
   InformationCircleIcon,
@@ -16,6 +18,7 @@ import axios from 'axios';
 import { truncate } from 'fs';
 import { useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { TvDetails } from '@server/models/Tv';
 
 interface ButtonOption {
   id: string;
@@ -33,6 +36,11 @@ interface FollowButtonProps {
   is4kShowComplete?: boolean;
 }
 
+const messages = defineMessages({
+  nowfollowing: 'Now Following <strong>{title}</strong>!',
+  unfollow: 'UN-Followed <strong>{title}</strong>!',
+});
+
 const FollowButton = ({
   tmdbId,
   onUpdate,
@@ -43,8 +51,11 @@ const FollowButton = ({
 }: FollowButtonProps) => {
 
   //some initialization code
+  const { addToast } = useToasts();
+  const intl = useIntl();
   const { user, hasPermission } = useUser();
   const userFollowing = media?.followIds.includes(user?.id ?? -1);
+  const { data, error } = useSWR<TvDetails>(`/api/v1/tv/${media?.tmdbId}`);
   //find request/media. send update to api
 
   //onModify = async
@@ -52,8 +63,8 @@ const FollowButton = ({
 
   //button push logic
 
-  //4k push logic
-  if(!media || !userFollowing) {
+  //push logic
+  if(media && !userFollowing) {
     buttons.push({
       id: 'Follow',
       text: 'Follow',
@@ -64,12 +75,21 @@ const FollowButton = ({
             userId: user?.id
           });
           onUpdate();
+          addToast(
+            <span>
+              {intl.formatMessage(messages.nowfollowing, {
+                title: data?.name,
+                strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
+              })}
+            </span>,
+            { appearance: 'success', autoDismiss: true }
+          );
         } catch (error) {
           console.error(error);
         }
       },
     });
-  } else if (userFollowing) {
+  } else if (media && userFollowing) {
     buttons.push({
       id: 'Unfollow',
       text: 'Unfollow',
@@ -80,6 +100,15 @@ const FollowButton = ({
             userId: user?.id
           });
           onUpdate();
+          addToast(
+            <span>
+              {intl.formatMessage(messages.unfollow, {
+                title: data?.name,
+                strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
+              })}
+            </span>,
+            { appearance: 'success', autoDismiss: true }
+          );
         } catch (error) {
           console.error(error);
         }

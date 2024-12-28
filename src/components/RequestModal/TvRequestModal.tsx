@@ -24,6 +24,7 @@ import useSWR, { mutate } from 'swr';
 const messages = defineMessages({
   requestadmin: 'This request will be approved automatically.',
   requestSuccess: '<strong>{title}</strong> requested successfully!',
+  nowfollowing: 'Now Following <strong>{title}</strong>!',
   requestseriestitle: 'Request Series',
   requestseries4ktitle: 'Request Series in 4K',
   edit: 'Edit Request',
@@ -204,6 +205,21 @@ const TvRequestModal = ({
       mutate('/api/v1/request?filter=all&take=10&sort=modified&skip=0');
 
       if (response.data) {
+        //automatically follow requested website
+        await axios.post(`/api/v1/media/${response.data.media.id}/follow`, {
+          is4k: false,
+          userId: user?.id
+        });
+        addToast(
+          <span>
+            {intl.formatMessage(messages.nowfollowing, {
+              title: data?.name,
+              strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
+            })}
+          </span>,
+          { appearance: 'success', autoDismiss: true }
+        );
+
         if (onComplete) {
           onComplete(response.data.media.status);
         }

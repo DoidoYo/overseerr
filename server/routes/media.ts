@@ -95,7 +95,12 @@ mediaRoutes.post<
   Media
 >(
   '/:id/:status',
-  isAuthenticated(Permission.MANAGE_REQUESTS),
+  (req, res, next) => {
+    if (['follow', 'unfollow'].includes(req.params.status)) {
+      return isAuthenticated(Permission.REQUEST)(req, res, next);
+    }
+    return isAuthenticated(Permission.MANAGE_REQUESTS)(req, res, next);
+  },
   async (req, res, next) => {
     const mediaRepository = getRepository(Media);
 
