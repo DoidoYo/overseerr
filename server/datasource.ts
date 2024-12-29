@@ -22,7 +22,7 @@ const prodConfig: DataSourceOptions = {
     ? `${process.env.CONFIG_DIRECTORY}/db/db.sqlite3`
     : 'config/db/db.sqlite3',
   synchronize: false,
-  migrationsRun: false,
+  migrationsRun: true,
   logging: false,
   enableWAL: true,
   entities: ['dist/entity/**/*.js'],
