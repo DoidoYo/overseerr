@@ -6,11 +6,10 @@ import { useUser } from '@app/hooks/useUser';
 // import globalMessages from '@app/i18n/globalMessages';
 // import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import useSWR from 'swr';
-// import {
-//   CheckIcon,
-//   InformationCircleIcon,
-//   XMarkIcon,
-// } from '@heroicons/react/24/solid';
+import {
+  EyeSlashIcon,
+  EyeIcon
+} from '@heroicons/react/24/solid';
 // import { MediaRequestStatus, MediaStatus, MediaFollow } from '@server/constants/media';
 import type Media from '@server/entity/Media';
 // import type { MediaRequest } from '@server/entity/MediaRequest';
@@ -67,8 +66,9 @@ const FollowButton = ({
   //push logic
   if(media && !userFollowing) {
     buttons.push({
-      id: 'Follow',
+      id: 'follow',
       text: 'Follow',
+      svg: <EyeIcon />,
       action: async () => {
         try{
           await axios.post(`/api/v1/media/${media?.id}/follow`, {
@@ -97,8 +97,9 @@ const FollowButton = ({
     });
   } else if (media && userFollowing) {
     buttons.push({
-      id: 'Unfollow',
+      id: 'unfollow',
       text: 'Unfollow',
+      svg: <EyeSlashIcon />,
       action: async () => {
         try{
           await axios.post(`/api/v1/media/${media?.id}/unfollow`, {

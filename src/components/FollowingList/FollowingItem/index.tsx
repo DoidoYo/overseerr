@@ -7,11 +7,7 @@ import { Permission, useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
 // import { refreshIntervalHelper } from '@app/utils/refreshIntervalHelper';
 import {
-  ArrowPathIcon,
-  CheckIcon,
-  PencilIcon,
-  TrashIcon,
-  XMarkIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/solid';
 import { MediaRequestStatus } from '@server/constants/media';
 import type Media from '@server/entity/Media';
@@ -20,7 +16,6 @@ import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
 import Link from 'next/link';
-import { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { defineMessages, FormattedRelativeTime, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
@@ -29,18 +24,7 @@ import useSWR from 'swr';
 const messages = defineMessages({
   unfollow: 'Unfollowed <strong>{title}</strong>!',
   unfollowError: 'Error unfollowing <strong>{title}</strong>, {error}!',
-  seasons: '{seasonCount, plural, one {Season} other {Seasons}}',
-  failedretry: 'Something went wrong while retrying the request.',
-  requested: 'Requested',
-  requesteddate: 'Requested',
-  modified: 'Modified',
-  modifieduserdate: '{date} by {user}',
-  mediaerror: '{mediaType} Not Found',
-  editrequest: 'Edit Request',
-  deleterequest: 'Delete Request',
-  cancelRequest: 'Cancel Request',
-  tmdbid: 'TMDB ID',
-  tvdbid: 'TheTVDB ID',
+  deleterequest: 'Unfollow',
   unknowntitle: 'Unknown Title',
 });
 
@@ -248,18 +232,6 @@ const RequestItemError = ({
           )}
         </div>
       </div>
-      <div className="z-10 mt-4 flex w-full flex-col justify-center pl-4 pr-4 xl:mt-0 xl:w-96 xl:items-end xl:pl-0">
-        {hasPermission(Permission.MANAGE_REQUESTS) && mediaData?.media.id && (
-          <Button
-            className="w-full"
-            buttonType="danger"
-            onClick={() => deleteRequest()}
-          >
-            <TrashIcon />
-            <span>{intl.formatMessage(messages.deleterequest)}</span>
-          </Button>
-        )}
-      </div>
     </div>
   );
 };
@@ -405,7 +377,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
                 confirmText={intl.formatMessage(globalMessages.areyousure)}
                 className="w-full"
               >
-                <TrashIcon />
+                <EyeSlashIcon />
                 <span>{intl.formatMessage(messages.deleterequest)}</span>
               </ConfirmButton>
             )}
