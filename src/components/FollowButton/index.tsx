@@ -38,7 +38,7 @@ interface FollowButtonProps {
 
 const messages = defineMessages({
   nowfollowing: 'Now Following <strong>{title}</strong>!',
-  unfollow: 'UN-Followed <strong>{title}</strong>!',
+  unfollow: 'Unfollowed <strong>{title}</strong>!',
 });
 
 const FollowButton = ({

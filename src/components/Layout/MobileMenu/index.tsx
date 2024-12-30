@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   TvIcon,
   UsersIcon,
+  EyeIcon,
 } from '@heroicons/react/24/outline';
 import {
   ClockIcon as FilledClockIcon,
@@ -21,6 +22,7 @@ import {
   TvIcon as FilledTvIcon,
   UsersIcon as FilledUsersIcon,
   XMarkIcon,
+  EyeIcon as FilledEyeIcon,
 } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -76,6 +78,13 @@ const MobileMenu = () => {
       svgIcon: <TvIcon className="h-6 w-6" />,
       svgIconSelected: <FilledTvIcon className="h-6 w-6" />,
       activeRegExp: /^\/discover\/tv$/,
+    },
+    {
+      href: '/following',
+      content: intl.formatMessage(menuMessages.following),
+      svgIcon: <EyeIcon className="h-6 w-6" />,
+      svgIconSelected: <FilledEyeIcon className="h-6 w-6" />,
+      activeRegExp: /^\/following/,
     },
     {
       href: '/requests',
