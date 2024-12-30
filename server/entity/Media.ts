@@ -98,7 +98,7 @@ class Media {
       }
     }
   })
-  public followIds: number[];
+  public followingIds: number[];
 
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;
@@ -173,22 +173,22 @@ class Media {
   }
 
   public addFollower(userId: number): void {
-    if (!this.followIds) {
-      this.followIds = [];
+    if (!this.followingIds) {
+      this.followingIds = [];
     }
     // Strict number comparison
-    const exists = this.followIds.some(id => Number(id) === userId);
+    const exists = this.followingIds.some(id => Number(id) === userId);
     if (!exists) {
-      this.followIds.push(userId);
+      this.followingIds.push(userId);
     }
   }
 
   public removeFollower(userId: number): void {
-    if (!this.followIds) {
-      this.followIds = [];
+    if (!this.followingIds) {
+      this.followingIds = [];
     }
     // Convert any existing string values to numbers before filtering
-    this.followIds = this.followIds.map(Number).filter((id) => id !== userId);
+    this.followingIds = this.followingIds.map(Number).filter((id) => id !== userId);
   }
 
   @AfterLoad()

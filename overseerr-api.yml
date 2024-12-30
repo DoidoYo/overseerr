@@ -1054,6 +1054,12 @@ components:
           type: number
           example: 0
           description: Availability of the media. 1 = `UNKNOWN`, 2 = `PENDING`, 3 = `PROCESSING`, 4 = `PARTIALLY_AVAILABLE`, 5 = `AVAILABLE`
+        followingIds:
+          type: array
+          readOnly: true
+          description: List of User IDs that are following the media
+          items:
+            type: number
         requests:
           type: array
           readOnly: true

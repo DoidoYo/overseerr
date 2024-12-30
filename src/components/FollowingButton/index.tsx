@@ -26,7 +26,7 @@ interface ButtonOption {
   svg?: React.ReactNode;
 }
 
-interface FollowButtonProps {
+interface FollowingButtonProps {
   mediaType: 'movie' | 'tv';
   onUpdate: () => void;
   tmdbId: number;
@@ -40,21 +40,21 @@ const messages = defineMessages({
   unfollow: 'Unfollowed <strong>{title}</strong>!',
 });
 
-const FollowButton = ({
+const FollowingButton = ({
   tmdbId,
   onUpdate,
   media,
   // mediaType,
   // isShowComplete = false,
   // is4kShowComplete = false,
-}: FollowButtonProps) => {
+}: FollowingButtonProps) => {
 
   //some initialization code
   const { addToast } = useToasts();
   const intl = useIntl();
   // const { user, hasPermission } = useUser();
   const { user } = useUser();
-  const userFollowing = media?.followIds.includes(user?.id ?? -1);
+  const userFollowing = media?.followingIds.includes(user?.id ?? -1);
   const { data } = useSWR<TvDetails>(`/api/v1/tv/${tmdbId}`);
   //find request/media. send update to api
 
@@ -152,4 +152,4 @@ const FollowButton = ({
   );
 };
 
-export default FollowButton;
+export default FollowingButton;

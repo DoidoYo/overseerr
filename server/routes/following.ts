@@ -41,7 +41,7 @@ followingRoutes.get<Record<string, unknown>, JSON>(
       const [media, mediaCount] = await mediaRepository
         .createQueryBuilder("media")
         // .select(["media.id", "media.tmdbId"])
-        .where("(',' || media.followIds || ',') LIKE :targetString", { targetString })
+        .where("(',' || media.followingIds || ',') LIKE :targetString", { targetString })
         .take(pageSize)
         .skip(skip)
         .getManyAndCount();

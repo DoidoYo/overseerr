@@ -36,7 +36,7 @@ const CollectionDetails = ({ collection }: CollectionDetailsProps) => {
   const intl = useIntl();
   const router = useRouter();
   const settings = useSettings();
-  const { hasPermission } = useUser();
+  const { hasPermission, user:currentUser } = useUser();
   const [requestModal, setRequestModal] = useState(false);
   const [is4k, setIs4k] = useState(false);
 
@@ -340,6 +340,7 @@ const CollectionDetails = ({ collection }: CollectionDetailsProps) => {
             id={title.id}
             image={title.posterPath}
             status={title.mediaInfo?.status}
+            following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
             summary={title.overview}
             title={title.title}
             userScore={title.voteAverage}

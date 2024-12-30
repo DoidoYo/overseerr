@@ -1,6 +1,7 @@
 import PersonCard from '@app/components/PersonCard';
 import TitleCard from '@app/components/TitleCard';
 import TmdbTitleCard from '@app/components/TitleCard/TmdbTitleCard';
+import { useUser } from '@app/hooks/useUser';
 import useVerticalScroll from '@app/hooks/useVerticalScroll';
 import globalMessages from '@app/i18n/globalMessages';
 import type { WatchlistItem } from '@server/interfaces/api/discoverInterfaces';
@@ -29,6 +30,7 @@ const ListView = ({
   isReachingEnd,
   plexItems,
 }: ListViewProps) => {
+  const { user: currentUser } = useUser();
   const intl = useIntl();
   useVerticalScroll(onScrollBottom, !isLoading && !isEmpty && !isReachingEnd);
   return (
@@ -61,6 +63,7 @@ const ListView = ({
                   id={title.id}
                   image={title.posterPath}
                   status={title.mediaInfo?.status}
+                  following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
                   summary={title.overview}
                   title={title.title}
                   userScore={title.voteAverage}
@@ -79,6 +82,7 @@ const ListView = ({
                   id={title.id}
                   image={title.posterPath}
                   status={title.mediaInfo?.status}
+                  following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
                   summary={title.overview}
                   title={title.name}
                   userScore={title.voteAverage}
@@ -130,3 +134,4 @@ const ListView = ({
 };
 
 export default ListView;
+

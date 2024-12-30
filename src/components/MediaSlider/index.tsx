@@ -3,6 +3,7 @@ import PersonCard from '@app/components/PersonCard';
 import Slider from '@app/components/Slider';
 import TitleCard from '@app/components/TitleCard';
 import useSettings from '@app/hooks/useSettings';
+import { useUser } from '@app/hooks/useUser';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import { MediaStatus } from '@server/constants/media';
 import type {
@@ -40,6 +41,7 @@ const MediaSlider = ({
   hideWhenEmpty = false,
   onNewTitles,
 }: MediaSliderProps) => {
+  const { user: currentUser } = useUser();
   const settings = useSettings();
   const { data, error, setSize, size } = useSWRInfinite<MixedResult>(
     (pageIndex: number, previousPageData: MixedResult | null) => {
@@ -98,6 +100,7 @@ const MediaSlider = ({
             id={title.id}
             image={title.posterPath}
             status={title.mediaInfo?.status}
+            following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
             summary={title.overview}
             title={title.title}
             userScore={title.voteAverage}
@@ -112,6 +115,7 @@ const MediaSlider = ({
             id={title.id}
             image={title.posterPath}
             status={title.mediaInfo?.status}
+            following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
             summary={title.overview}
             title={title.name}
             userScore={title.voteAverage}

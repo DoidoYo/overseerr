@@ -24,7 +24,7 @@ const TmdbTitleCard = ({
   type,
   canExpand,
 }: TmdbTitleCardProps) => {
-  const { hasPermission } = useUser();
+  const { hasPermission, user: currentUser } = useUser();
 
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -59,6 +59,7 @@ const TmdbTitleCard = ({
       id={title.id}
       image={title.posterPath}
       status={title.mediaInfo?.status}
+      following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
       summary={title.overview}
       title={title.title}
       userScore={title.voteAverage}
@@ -71,6 +72,7 @@ const TmdbTitleCard = ({
       id={title.id}
       image={title.posterPath}
       status={title.mediaInfo?.status}
+      following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
       summary={title.overview}
       title={title.name}
       userScore={title.voteAverage}

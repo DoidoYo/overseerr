@@ -1,6 +1,7 @@
 import Spinner from '@app/assets/spinner.svg';
 import Button from '@app/components/Common/Button';
 import CachedImage from '@app/components/Common/CachedImage';
+import FollowingBadgeMini from '@app/components/Common/FollowingBadgeMini';
 import StatusBadgeMini from '@app/components/Common/StatusBadgeMini';
 import RequestModal from '@app/components/RequestModal';
 import ErrorCard from '@app/components/TitleCard/ErrorCard';
@@ -26,6 +27,7 @@ interface TitleCardProps {
   userScore?: number;
   mediaType: MediaType;
   status?: MediaStatus;
+  following?: boolean;
   canExpand?: boolean;
   inProgress?: boolean;
 }
@@ -37,6 +39,7 @@ const TitleCard = ({
   year,
   title,
   status,
+  following = false,
   mediaType,
   inProgress = false,
   canExpand = false,
@@ -154,6 +157,13 @@ const TitleCard = ({
                   : intl.formatMessage(globalMessages.tvshow)}
               </div>
             </div>
+            {following && (
+              <div className="pointer-events-none z-40 flex items-center">
+              <FollowingBadgeMini
+                shrink
+              />
+              </div>
+            )}
             {currentStatus && currentStatus !== MediaStatus.UNKNOWN && (
               <div className="pointer-events-none z-40 flex items-center">
                 <StatusBadgeMini
@@ -208,12 +218,14 @@ const TitleCard = ({
                 >
                   <div className="flex h-full w-full items-end">
                     <div
-                      className={`px-2 text-white ${
-                        (!showRequestButton && !showFollowButton) ||
-                        (currentStatus && currentStatus !== MediaStatus.UNKNOWN)
-                          ? 'pb-2'
-                          : 'pb-11' //up space pb-20 for 2 buttons
-                      }`}
+                      className={`px-2 text-white pb-11`
+                        // ${
+                        // (!showRequestButton && !showFollowButton) ||
+                        // (currentStatus && currentStatus !== MediaStatus.UNKNOWN)
+                        //   ? 'pb-2'
+                        //   : 'pb-11' //up space pb-20 for 2 buttons
+                        // }`
+                      }
                     >
                       {year && (
                         <div className="text-sm font-medium">{year}</div>
@@ -255,8 +267,8 @@ const TitleCard = ({
               </Link>
 
               <div className="absolute bottom-0 left-0 right-0 flex justify-between px-2 py-2">
-                {showRequestButton &&
-                  (!currentStatus || currentStatus === MediaStatus.UNKNOWN) && (
+                {(showRequestButton &&
+                  (!currentStatus || currentStatus === MediaStatus.UNKNOWN)) ? (
                     <Button
                       buttonType="primary"
                       buttonSize="sm"
@@ -269,21 +281,19 @@ const TitleCard = ({
                       <ArrowDownTrayIcon />
                       <span>{intl.formatMessage(globalMessages.request)}</span>
                     </Button>
-                  )}
-                  {(showFollowButton && !showRequestButton) && (!currentStatus || currentStatus === MediaStatus.UNKNOWN) && (
+                  ) : (
                   <Button
-                  buttonType="primary"
-                  buttonSize="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log("Title Test Press");
-                  }}
-                  className="h-7 w-full"
-                >
-                  {/* <ArrowDownTrayIcon /> */}
-                  <span>{"Follow"}</span>
-                </Button>
-                )}
+                    buttonType="primary"
+                    buttonSize="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      console.log("Title Test Press");
+                    }}
+                    className="h-7 w-full"
+                  >
+                    {/* <ArrowDownTrayIcon /> */}
+                    <span>{"Follow"}</span>
+                  </Button>)}
               </div>
             </div>
           </Transition>

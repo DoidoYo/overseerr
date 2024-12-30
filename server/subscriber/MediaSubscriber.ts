@@ -139,7 +139,7 @@ export class MediaSubscriber implements EntitySubscriberInterface<Media> {
 
       try {
         const tv = await tmdb.getTvShow({ tvId: entity.tmdbId });
-        for (const userID of entity.followIds) {
+        for (const userID of entity.followingIds) {
           const user = await userRepository.findOne({where: {id: userID}});
           if (user) {
             notificationManager.sendNotification(Notification.MEDIA_EPISODE_AVAILABLE, {
