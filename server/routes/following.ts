@@ -63,4 +63,61 @@ followingRoutes.get<Record<string, unknown>, JSON>(
   }
 );
 
+followingRoutes.post<
+  {
+    tmdbId: string;
+    status: 'follow' | 'unfollow';
+  },
+  Media
+>(
+  '/:tmdbId/:status',
+  isAuthenticated(Permission.REQUEST),
+  //authentication stuff
+  async (req, res, next) => {
+    //worked
+    const tmdbId = req.params.tmdbId;
+
+    if (!req.user) {
+      return next({
+        status: 401,
+        message: 'You must be logged in to request media.',
+      });
+    }
+    const userId = req.user.id;
+
+    try {
+      const mediaRepository = getRepository(Media);
+
+      const media = await mediaRepository.findOne({
+        where: { tmdbId: Number(tmdbId) },
+      });
+
+      if (!media) {
+        return next({ status: 404, message: 'Media does not exist.' });
+      }
+
+      switch (req.params.status) {
+        case 'follow':
+          media.addFollower(userId);
+          break;
+        case 'unfollow':
+          media.removeFollower(userId);
+          break;
+      }
+
+      // const j = {t:tmdbId, tt:status,ttt:userId, tttt:req.user}
+      await mediaRepository.save(media);
+
+      return res.status(200).send(media);
+
+    } catch (e) {
+      logger.error('Something went wrong fetching media in post FOLLOWING request', {
+        label: 'Following',
+        message: e.message,
+      });
+      next({ status: 500, message: 'Media not found' });
+    }
+  }
+);
+
 export default followingRoutes;

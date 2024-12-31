@@ -4965,6 +4965,44 @@ paths:
                 type: string
                 items:
                   type: number
+  /following/{tmdbId}/{status}: #//gbf
+    post:
+      summary: Update media following status
+      description: Updates a media following and returns the media in JSON format
+      tags:
+        - media
+      parameters:
+        - in: path
+          name: tmdbId
+          required: true
+          schema:
+            type: number
+            example: 0
+        - in: path
+          name: status
+          description: New status
+          required: true
+          example: follow
+          schema:
+            type: string
+            enum: [follow, unfollow]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is4k:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: Returned media
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaInfo'
   /request:
     get:
       summary: Get all requests
@@ -5799,16 +5837,7 @@ paths:
           example: available
           schema:
             type: string
-            enum:
-              [
-                available,
-                partial,
-                processing,
-                pending,
-                unknown,
-                follow,
-                unfollow,
-              ]
+            enum: [available, partial, processing, pending, unknown]
       requestBody:
         content:
           application/json:

@@ -5,9 +5,7 @@ import ConfirmButton from '@app/components/Common/ConfirmButton';
 import { Permission, useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
 // import { refreshIntervalHelper } from '@app/utils/refreshIntervalHelper';
-import {
-  EyeSlashIcon,
-} from '@heroicons/react/24/solid';
+import { EyeSlashIcon } from '@heroicons/react/24/solid';
 // import { MediaRequestStatus } from '@server/constants/media';
 import type Media from '@server/entity/Media';
 // import type { MediaRequest } from '@server/entity/MediaRequest';
@@ -243,7 +241,6 @@ interface FollowingItemProps {
 }
 
 const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
-
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
@@ -260,10 +257,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
 
   const unfollow = async () => {
     try {
-      await axios.post(`/api/v1/media/${media.id}/unfollow`, {
-        is4k: false,
-        userId: user?.id
-      });
+      await axios.post(`/api/v1/following/${media?.tmdbId}/unfollow`);
       if (!title) {
         throw new Error('Title is undefined');
       }
@@ -278,7 +272,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
         { appearance: 'success', autoDismiss: true }
       );
       revalidateList();
-    } catch(e) {
+    } catch (e) {
       // Show error toast
       if (!title) {
         throw new Error('Title is undefined');
@@ -287,7 +281,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
         <span>
           {intl.formatMessage(messages.unfollowError, {
             title: isMovie(title) ? title.title : title.name,
-            error: e,
+            error: e.message,
             strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
           })}
         </span>,
@@ -308,7 +302,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
   if (!title || !media) {
     return (
       <>
-      <div>UNABLE TO LOAD TITLE</div>
+        <div>UNABLE TO LOAD TITLE</div>
       </>
     );
   }
@@ -358,10 +352,10 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
           </Link>
           <div className="flex flex-col justify-center overflow-hidden pl-2 xl:pl-4">
             <div className="pt-0.5 text-xs font-medium text-white sm:pt-1">
-              {(isMovie(title)
-                ? title.releaseDate
-                : title.firstAirDate
-              )?.slice(0, 4)}
+              {(isMovie(title) ? title.releaseDate : title.firstAirDate)?.slice(
+                0,
+                4
+              )}
             </div>
             <Link
               href={
@@ -378,15 +372,16 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
         </div>
         <div className="z-10 mt-4 flex w-full flex-col justify-center space-y-2 pl-4 pr-4 xl:mt-0 xl:w-96 xl:items-end xl:pl-0">
           {hasPermission(Permission.REQUEST) && (
-              <ConfirmButton
-                onClick={() => unfollow()}
-                confirmText={intl.formatMessage(globalMessages.areyousure)}
-                className="w-full"
-              >
-                <EyeSlashIcon />
-                <span>{intl.formatMessage(messages.unfollowText)}</span>
-              </ConfirmButton>
-            )}
+            <ConfirmButton
+              onClick={() => unfollow()}
+              confirmText={intl.formatMessage(globalMessages.areyousure)}
+              className="w-full"
+              buttonType="danger"
+            >
+              <EyeSlashIcon />
+              <span>{intl.formatMessage(messages.unfollowText)}</span>
+            </ConfirmButton>
+          )}
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import Spinner from '@app/assets/spinner.svg';
 import Button from '@app/components/Common/Button';
 import CachedImage from '@app/components/Common/CachedImage';
+import ConfirmButton from '@app/components/Common/ConfirmButton';
 import FollowingBadgeMini from '@app/components/Common/FollowingBadgeMini';
 import StatusBadgeMini from '@app/components/Common/StatusBadgeMini';
 import RequestModal from '@app/components/RequestModal';
@@ -12,11 +13,20 @@ import globalMessages from '@app/i18n/globalMessages';
 import { withProperties } from '@app/utils/typeHelpers';
 import { Transition } from '@headlessui/react';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { MediaStatus } from '@server/constants/media';
 import type { MediaType } from '@server/models/Search';
+import axios from 'axios';
 import Link from 'next/link';
 import { Fragment, useCallback, useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
+import { useToasts } from 'react-toast-notifications';
+
+const messages = defineMessages({
+  unfollow: 'Unfollowed <strong>{title}</strong>!',
+  unfollowError: 'Error Unfollowing <strong>{title}</strong>, {error}!',
+  following: 'Now Following <strong>{title}</strong>!',
+});
 
 interface TitleCardProps {
   id: number;
@@ -50,7 +60,9 @@ const TitleCard = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(status);
   const [showDetail, setShowDetail] = useState(false);
+  const [currentFollowing, setCurrentFollowing] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const { addToast } = useToasts();
 
   // Just to get the year from the date
   if (year) {
@@ -60,6 +72,14 @@ const TitleCard = ({
   useEffect(() => {
     setCurrentStatus(status);
   }, [status]);
+
+  useEffect(() => {
+    setCurrentFollowing(following);
+  }, [following]);
+
+  useEffect(() => {
+    console.log('isUpdating:', isUpdating);
+  }, [isUpdating]);
 
   const requestComplete = useCallback((newStatus: MediaStatus) => {
     setCurrentStatus(newStatus);
@@ -73,6 +93,41 @@ const TitleCard = ({
 
   const closeModal = useCallback(() => setShowRequestModal(false), []);
 
+  const setFollowing = async (follow: boolean) => {
+    // axios.post(`/api/v1/following/${media?.tmdbId}/follow`);
+    setIsUpdating(true);
+    const url = `/api/v1/following/${id}/${follow ? 'follow' : 'unfollow'}`;
+
+    try {
+      await axios.post(url);
+      setCurrentFollowing(follow);
+      setIsUpdating(false);
+      console.log('MEEE', isUpdating);
+      addToast(
+        <span>
+          {intl.formatMessage(follow ? messages.following : messages.unfollow, {
+            title: title,
+            strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
+          })}
+        </span>,
+        { appearance: 'success', autoDismiss: true }
+      );
+    } catch (e) {
+      setIsUpdating(false);
+      addToast(
+        <span>
+          {intl.formatMessage(messages.unfollowError, {
+            title: title,
+            strong: (msg: React.ReactNode) => <strong>{msg}</strong>,
+            error: e.message,
+          })}
+        </span>,
+        { appearance: 'error', autoDismiss: true }
+      );
+    }
+    setIsUpdating(false);
+  };
+
   const showRequestButton = hasPermission(
     [
       Permission.REQUEST,
@@ -82,9 +137,6 @@ const TitleCard = ({
     ],
     { type: 'or' }
   );
-
-  const showFollowButton = false;
-  // const showRequestButton = false;
 
   return (
     <div
@@ -157,11 +209,9 @@ const TitleCard = ({
                   : intl.formatMessage(globalMessages.tvshow)}
               </div>
             </div>
-            {following && (
+            {currentFollowing && (
               <div className="pointer-events-none z-40 flex items-center">
-              <FollowingBadgeMini
-                shrink
-              />
+                <FollowingBadgeMini shrink />
               </div>
             )}
             {currentStatus && currentStatus !== MediaStatus.UNKNOWN && (
@@ -176,6 +226,7 @@ const TitleCard = ({
           </div>
           <Transition
             as={Fragment}
+            key={isUpdating ? 'visible' : 'hidden'}
             show={isUpdating}
             enter="transition-opacity ease-in-out duration-300"
             enterFrom="opacity-0"
@@ -218,14 +269,15 @@ const TitleCard = ({
                 >
                   <div className="flex h-full w-full items-end">
                     <div
-                      className={`px-2 text-white pb-11`
-                        // ${
-                        // (!showRequestButton && !showFollowButton) ||
-                        // (currentStatus && currentStatus !== MediaStatus.UNKNOWN)
-                        //   ? 'pb-2'
-                        //   : 'pb-11' //up space pb-20 for 2 buttons
-                        // }`
-                      }
+                      className={`px-2 text-white
+                        ${
+                          mediaType === 'movie' && //not implemented movie for follow yet
+                          (!showRequestButton ||
+                            (currentStatus &&
+                              currentStatus !== MediaStatus.UNKNOWN))
+                            ? 'pb-2'
+                            : 'pb-11' //up space pb-20 for 2 buttons
+                        }`}
                     >
                       {year && (
                         <div className="text-sm font-medium">{year}</div>
@@ -248,9 +300,10 @@ const TitleCard = ({
                         className="whitespace-normal text-xs"
                         style={{
                           WebkitLineClamp:
-                            !showRequestButton || !showFollowButton ||
-                            (currentStatus &&
-                              currentStatus !== MediaStatus.UNKNOWN)
+                            mediaType === 'movie' && //not implemented movie for follow yet
+                            (!showRequestButton ||
+                              (currentStatus &&
+                                currentStatus !== MediaStatus.UNKNOWN))
                               ? 5
                               : 3,
                           display: '-webkit-box',
@@ -267,33 +320,52 @@ const TitleCard = ({
               </Link>
 
               <div className="absolute bottom-0 left-0 right-0 flex justify-between px-2 py-2">
-                {(showRequestButton &&
-                  (!currentStatus || currentStatus === MediaStatus.UNKNOWN)) ? (
+                {!currentStatus || currentStatus === MediaStatus.UNKNOWN ? ( // media has NOT been requested, show request
+                  <Button
+                    buttonType="primary"
+                    buttonSize="sm"
+                    onClick={(e) => {
+                      setShowRequestModal(true);
+                      e.preventDefault();
+                    }}
+                    className="h-7 w-full"
+                  >
+                    <ArrowDownTrayIcon />
+                    <span>{intl.formatMessage(globalMessages.request)}</span>
+                  </Button>
+                ) : mediaType === 'tv' ? (
+                  currentFollowing ? (
+                    //unfollow button
+                    <ConfirmButton
+                      onClick={() => {
+                        setFollowing(false);
+                        // e.preventDefault();
+                      }}
+                      confirmText={intl.formatMessage(
+                        globalMessages.areyousure
+                      )}
+                      className="h-7 w-full"
+                      buttonSize="sm"
+                      buttonType="danger"
+                    >
+                      <EyeSlashIcon />
+                      <span>{'Unfollow'}</span>
+                    </ConfirmButton>
+                  ) : (
                     <Button
                       buttonType="primary"
                       buttonSize="sm"
                       onClick={(e) => {
                         e.preventDefault();
-                        setShowRequestModal(true);
+                        setFollowing(true);
                       }}
                       className="h-7 w-full"
                     >
-                      <ArrowDownTrayIcon />
-                      <span>{intl.formatMessage(globalMessages.request)}</span>
+                      <EyeIcon />
+                      <span>{'Follow'}</span>
                     </Button>
-                  ) : (
-                  <Button
-                    buttonType="primary"
-                    buttonSize="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      console.log("Title Test Press");
-                    }}
-                    className="h-7 w-full"
-                  >
-                    {/* <ArrowDownTrayIcon /> */}
-                    <span>{"Follow"}</span>
-                  </Button>)}
+                  )
+                ) : undefined}
               </div>
             </div>
           </Transition>

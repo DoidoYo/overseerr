@@ -100,7 +100,9 @@ const MediaSlider = ({
             id={title.id}
             image={title.posterPath}
             status={title.mediaInfo?.status}
-            following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
+            following={title.mediaInfo?.followingIds.includes(
+              currentUser?.id ?? -1
+            )}
             summary={title.overview}
             title={title.title}
             userScore={title.voteAverage}
@@ -115,7 +117,9 @@ const MediaSlider = ({
             id={title.id}
             image={title.posterPath}
             status={title.mediaInfo?.status}
-            following={title.mediaInfo?.followingIds.includes(currentUser?.id ?? -1)}
+            following={title.mediaInfo?.followingIds.includes(
+              currentUser?.id ?? -1
+            )}
             summary={title.overview}
             title={title.name}
             userScore={title.voteAverage}

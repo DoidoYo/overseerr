@@ -206,10 +206,9 @@ const TvRequestModal = ({
 
       if (response.data) {
         //automatically follow requested website
-        await axios.post(`/api/v1/media/${response.data.media.id}/follow`, {
-          is4k: false,
-          userId: user?.id
-        });
+        await axios.post(
+          `/api/v1/following/${response.data.media.tmdbId}/follow`
+        );
         addToast(
           <span>
             {intl.formatMessage(messages.nowfollowing, {
