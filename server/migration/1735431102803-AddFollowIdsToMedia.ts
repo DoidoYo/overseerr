@@ -4,7 +4,7 @@ export class AddFollowIdsToMedia1735431102803 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-        `ALTER TABLE "media" ADD COLUMN "followIds" text DEFAULT '[]'`
+        `ALTER TABLE "media" ADD COLUMN "followingIds" text DEFAULT '[]'`
     );
     await queryRunner.query(
       `ALTER TABLE "season" ADD COLUMN "totalEpisodesNumber" integer DEFAULT 0`
@@ -16,7 +16,7 @@ export class AddFollowIdsToMedia1735431102803 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-        `ALTER TABLE "media" DROP COLUMN "followIds"`
+        `ALTER TABLE "media" DROP COLUMN "followingIds"`
     );
     await queryRunner.query(
       `ALTER TABLE "season" DROP COLUMN "totalEpisodesNumber"`
