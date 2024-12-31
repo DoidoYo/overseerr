@@ -1,3 +1,4 @@
+import type { ButtonType } from '@app/components/Common/Button';
 import Button from '@app/components/Common/Button';
 import useClickOutside from '@app/hooks/useClickOutside';
 import { forwardRef, useRef, useState } from 'react';
@@ -7,8 +8,8 @@ interface ConfirmButtonProps {
   confirmText: React.ReactNode;
   className?: string;
   children: React.ReactNode;
-  buttonType?: string;
-  buttonSize?: string;
+  buttonType?: ButtonType;
+  buttonSize?: 'default' | 'lg' | 'md' | 'sm';
 }
 
 const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
@@ -22,7 +23,7 @@ const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
     return (
       <Button
         ref={parentRef}
-        buttonType={buttonType ? buttonType : 'danger'}
+        buttonType={buttonType ?? 'danger'}
         buttonSize={buttonSize}
         className={`relative overflow-hidden ${className}`}
         onClick={(e) => {

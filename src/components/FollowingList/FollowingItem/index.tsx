@@ -246,7 +246,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
   });
   const { addToast } = useToasts();
   const intl = useIntl();
-  const { user, hasPermission } = useUser();
+  const { hasPermission } = useUser();
   const url =
     media.mediaType === 'movie'
       ? `/api/v1/movie/${media.tmdbId}`
