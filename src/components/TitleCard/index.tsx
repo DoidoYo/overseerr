@@ -105,7 +105,7 @@ const TitleCard = ({
       await axios.post(url);
       setCurrentFollowing(follow);
       setIsUpdating(false);
-      console.log('MEEE', isUpdating);
+
       addToast(
         <span>
           {intl.formatMessage(follow ? messages.following : messages.unfollow, {
