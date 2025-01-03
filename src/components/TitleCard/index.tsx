@@ -60,7 +60,7 @@ const TitleCard = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(status);
   const [showDetail, setShowDetail] = useState(false);
-  const [currentFollowing, setCurrentFollowing] = useState(false);
+  const [currentFollowing, setCurrentFollowing] = useState(following);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const { addToast } = useToasts();
 
@@ -72,14 +72,6 @@ const TitleCard = ({
   useEffect(() => {
     setCurrentStatus(status);
   }, [status]);
-
-  useEffect(() => {
-    setCurrentFollowing(following);
-  }, [following]);
-
-  useEffect(() => {
-    console.log('isUpdating:', isUpdating);
-  }, [isUpdating]);
 
   const requestComplete = useCallback((newStatus: MediaStatus) => {
     setCurrentStatus(newStatus);
@@ -97,14 +89,12 @@ const TitleCard = ({
   const closeModal = useCallback(() => setShowRequestModal(false), []);
 
   const setFollowing = async (follow: boolean) => {
-    // axios.post(`/api/v1/following/${media?.tmdbId}/follow`);
     setIsUpdating(true);
     const url = `/api/v1/following/${id}/${follow ? 'follow' : 'unfollow'}`;
 
     try {
       await axios.post(url);
       setCurrentFollowing(follow);
-      setIsUpdating(false);
 
       addToast(
         <span>
@@ -116,7 +106,6 @@ const TitleCard = ({
         { appearance: 'success', autoDismiss: true }
       );
     } catch (e) {
-      setIsUpdating(false);
       addToast(
         <span>
           {intl.formatMessage(messages.unfollowError, {
@@ -127,8 +116,9 @@ const TitleCard = ({
         </span>,
         { appearance: 'error', autoDismiss: true }
       );
+    } finally {
+      setIsUpdating(false);
     }
-    setIsUpdating(false);
   };
 
   const showRequestButton = hasPermission(
@@ -337,24 +327,24 @@ const TitleCard = ({
                     <span>{intl.formatMessage(globalMessages.request)}</span>
                   </Button>
                 ) : mediaType === 'tv' ? (
-                  currentFollowing ? (
-                    //unfollow button
+                  <>
+                    {/* className hidden needs to be used, since removing DOM element messes with onMouseOut function */}
                     <ConfirmButton
                       onClick={() => {
                         setFollowing(false);
-                        // e.preventDefault();
                       }}
                       confirmText={intl.formatMessage(
                         globalMessages.areyousure
                       )}
-                      className="h-7 w-full"
+                      className={`h-7 w-full ${
+                        currentFollowing ? 'visible' : 'hidden'
+                      }`}
                       buttonSize="sm"
                       buttonType="danger"
                     >
                       <EyeSlashIcon />
                       <span>{'Unfollow'}</span>
                     </ConfirmButton>
-                  ) : (
                     <Button
                       buttonType="primary"
                       buttonSize="sm"
@@ -362,12 +352,14 @@ const TitleCard = ({
                         e.preventDefault();
                         setFollowing(true);
                       }}
-                      className="h-7 w-full"
+                      className={`h-7 w-full ${
+                        currentFollowing ? 'hidden' : 'visible'
+                      }`}
                     >
                       <EyeIcon />
                       <span>{'Follow'}</span>
                     </Button>
-                  )
+                  </>
                 ) : undefined}
               </div>
             </div>
