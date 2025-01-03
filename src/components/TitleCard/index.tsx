@@ -17,6 +17,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 import { MediaStatus } from '@server/constants/media';
 import type { MediaType } from '@server/models/Search';
 import axios from 'axios';
+import { debounce } from 'lodash';
 import Link from 'next/link';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
@@ -81,15 +82,19 @@ const TitleCard = ({
     }
   }, []);
 
-  const requestUpdating = useCallback(
+  const setDebouncedUpdating = debounce(
     (status: boolean) => setIsUpdating(status),
-    []
+    50
   );
 
+  const requestUpdating = useCallback(
+    (status: boolean) => setDebouncedUpdating(status),
+    [setDebouncedUpdating]
+  );
   const closeModal = useCallback(() => setShowRequestModal(false), []);
 
   const setFollowing = async (follow: boolean) => {
-    setIsUpdating(true);
+    requestUpdating(true);
     const url = `/api/v1/following/${id}/${follow ? 'follow' : 'unfollow'}`;
 
     try {
@@ -117,7 +122,7 @@ const TitleCard = ({
         { appearance: 'error', autoDismiss: true }
       );
     } finally {
-      setIsUpdating(false);
+      requestUpdating(false);
     }
   };
 
@@ -219,7 +224,6 @@ const TitleCard = ({
           </div>
           <Transition
             as={Fragment}
-            key={isUpdating ? 'visible' : 'hidden'}
             show={isUpdating}
             enter="transition-opacity ease-in-out duration-300"
             enterFrom="opacity-0"
