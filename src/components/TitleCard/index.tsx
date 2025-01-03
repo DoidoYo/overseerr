@@ -84,6 +84,9 @@ const TitleCard = ({
   const requestComplete = useCallback((newStatus: MediaStatus) => {
     setCurrentStatus(newStatus);
     setShowRequestModal(false);
+    if (newStatus !== MediaStatus.UNKNOWN) {
+      setCurrentFollowing(true);
+    }
   }, []);
 
   const requestUpdating = useCallback(
