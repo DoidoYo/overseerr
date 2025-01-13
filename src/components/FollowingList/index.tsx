@@ -22,15 +22,14 @@ import useSWR from 'swr';
 const messages = defineMessages({
   following: 'Following',
   showallrequests: 'Show All Requests',
-  sortAdded: 'Most Recent',
-  sortModified: 'Last Modified',
+  sortLastNotified: 'Last Notified',
 });
 
 enum Filter {
   ALL = 'all',
 }
 
-type Sort = 'added' | 'modified';
+type Sort = 'notified';
 
 const FollowingList = () => {
   const router = useRouter();
@@ -40,7 +39,7 @@ const FollowingList = () => {
   });
   const { user: currentUser } = useUser();
   const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.ALL);
-  const [currentSort, setCurrentSort] = useState<Sort>('added');
+  const [currentSort, setCurrentSort] = useState<Sort>('notified');
   const [currentPageSize, setCurrentPageSize] = useState<number>(10);
 
   const page = router.query.page ? Number(router.query.page) : 1;
@@ -57,35 +56,35 @@ const FollowingList = () => {
     }&userId=${currentUser?.id}`
   );
 
-    // Restore last set filter values on component mount
-    useEffect(() => {
-      const filterString = window.localStorage.getItem('rl-filter-settings');
+  // Restore last set filter values on component mount
+  useEffect(() => {
+    const filterString = window.localStorage.getItem('rl-filter-settings');
 
-      if (filterString) {
-        const filterSettings = JSON.parse(filterString);
+    if (filterString) {
+      const filterSettings = JSON.parse(filterString);
 
-        setCurrentFilter(filterSettings.currentFilter);
-        setCurrentSort(filterSettings.currentSort);
-        setCurrentPageSize(filterSettings.currentPageSize);
-      }
+      setCurrentFilter(filterSettings.currentFilter);
+      setCurrentSort(filterSettings.currentSort);
+      setCurrentPageSize(filterSettings.currentPageSize);
+    }
 
-      // If filter value is provided in query, use that instead
-      if (Object.values(Filter).includes(router.query.filter as Filter)) {
-        setCurrentFilter(router.query.filter as Filter);
-      }
-    }, [router.query.filter]);
+    // If filter value is provided in query, use that instead
+    if (Object.values(Filter).includes(router.query.filter as Filter)) {
+      setCurrentFilter(router.query.filter as Filter);
+    }
+  }, [router.query.filter]);
 
-    // Set filter values to local storage any time they are changed
-    useEffect(() => {
-      window.localStorage.setItem(
-        'rl-filter-settings',
-        JSON.stringify({
-          currentFilter,
-          currentSort,
-          currentPageSize,
-        })
-      );
-    }, [currentFilter, currentSort, currentPageSize]);
+  // Set filter values to local storage any time they are changed
+  useEffect(() => {
+    window.localStorage.setItem(
+      'rl-filter-settings',
+      JSON.stringify({
+        currentFilter,
+        currentSort,
+        currentPageSize,
+      })
+    );
+  }, [currentFilter, currentSort, currentPageSize]);
 
   if (!data && !error) {
     return <LoadingSpinner />;
@@ -168,11 +167,8 @@ const FollowingList = () => {
               value={currentSort}
               className="rounded-r-only"
             >
-              <option value="added">
-                {intl.formatMessage(messages.sortAdded)}
-              </option>
-              <option value="modified">
-                {intl.formatMessage(messages.sortModified)}
+              <option value="notified">
+                {intl.formatMessage(messages.sortLastNotified)}
               </option>
             </select>
           </div>
@@ -183,10 +179,7 @@ const FollowingList = () => {
         return (
           // <div className="py-2" key={`request-list-${request.id}`}>
           <div className="py-2" key={`follow-list-${media.id}`}>
-            <FollowingItem
-              media={media}
-              revalidateList={() => revalidate()}
-            />
+            <FollowingItem media={media} revalidateList={() => revalidate()} />
           </div>
         );
       })}

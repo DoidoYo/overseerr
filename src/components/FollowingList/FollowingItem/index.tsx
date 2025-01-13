@@ -14,7 +14,7 @@ import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
-import { defineMessages, useIntl } from 'react-intl';
+import { defineMessages, FormattedRelativeTime, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR from 'swr';
 
@@ -327,36 +327,8 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
             />
           </div>
         )}
-        <div className="relative z-10 flex w-full items-center overflow-hidden pl-4 pr-4 sm:pr-0">
-          <Link
-            href={
-              media.mediaType === 'movie'
-                ? `/movie/${media.tmdbId}`
-                : `/tv/${media.tmdbId}`
-            }
-          >
-            <a className="relative h-auto w-12 flex-shrink-0 scale-100 transform-gpu overflow-hidden rounded-md transition duration-300 hover:scale-105">
-              <CachedImage
-                src={
-                  title.posterPath
-                    ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${title.posterPath}`
-                    : '/images/overseerr_poster_not_found.png'
-                }
-                alt=""
-                layout="responsive"
-                width={600}
-                height={900}
-                objectFit="cover"
-              />
-            </a>
-          </Link>
-          <div className="flex flex-col justify-center overflow-hidden pl-2 xl:pl-4">
-            <div className="pt-0.5 text-xs font-medium text-white sm:pt-1">
-              {(isMovie(title) ? title.releaseDate : title.firstAirDate)?.slice(
-                0,
-                4
-              )}
-            </div>
+        <div className="relative flex w-full flex-col justify-between overflow-hidden sm:flex-row">
+          <div className="relative z-10 flex w-full items-center overflow-hidden pl-4 pr-4 sm:pr-0 xl:w-7/12 2xl:w-2/3">
             <Link
               href={
                 media.mediaType === 'movie'
@@ -364,10 +336,60 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
                   : `/tv/${media.tmdbId}`
               }
             >
-              <a className="mr-2 min-w-0 truncate text-lg font-bold text-white hover:underline xl:text-xl">
-                {isMovie(title) ? title.title : title.name}
+              <a className="relative h-auto w-12 flex-shrink-0 scale-100 transform-gpu overflow-hidden rounded-md transition duration-300 hover:scale-105">
+                <CachedImage
+                  src={
+                    title.posterPath
+                      ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${title.posterPath}`
+                      : '/images/overseerr_poster_not_found.png'
+                  }
+                  alt=""
+                  layout="responsive"
+                  width={600}
+                  height={900}
+                  objectFit="cover"
+                />
               </a>
             </Link>
+            <div className="flex flex-col justify-center overflow-hidden pl-2 xl:pl-4">
+              <div className="pt-0.5 text-xs font-medium text-white sm:pt-1">
+                {(isMovie(title)
+                  ? title.releaseDate
+                  : title.firstAirDate
+                )?.slice(0, 4)}
+              </div>
+              <Link
+                href={
+                  media.mediaType === 'movie'
+                    ? `/movie/${media.tmdbId}`
+                    : `/tv/${media.tmdbId}`
+                }
+              >
+                <a className="mr-2 min-w-0 truncate text-lg font-bold text-white hover:underline xl:text-xl">
+                  {isMovie(title) ? title.title : title.name}
+                </a>
+              </Link>
+            </div>
+          </div>
+          <div className="z-10 mt-4 ml-4 flex w-full flex-col justify-center overflow-hidden pr-4 text-sm sm:ml-2 sm:mt-0 xl:flex-1 xl:pr-0">
+            <div className="card-field">
+              <span className="card-field-name">{'Last Notification:'}</span>
+              <span className="flex truncate text-sm text-gray-300">
+                {media.lastestFollowEvent ? (
+                  <FormattedRelativeTime
+                    value={Math.floor(
+                      (new Date(media.lastestFollowEvent).getTime() -
+                        Date.now()) /
+                        1000
+                    )}
+                    updateIntervalInSeconds={1}
+                    numeric="auto"
+                  />
+                ) : (
+                  'NA'
+                )}
+              </span>
+            </div>
           </div>
         </div>
         <div className="z-10 mt-4 flex w-full flex-col justify-center space-y-2 pl-4 pr-4 xl:mt-0 xl:w-96 xl:items-end xl:pl-0">

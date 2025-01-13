@@ -44,6 +44,9 @@ followingRoutes.get<Record<string, unknown>, JSON>(
         .where("(',' || media.followingIds || ',') LIKE :targetString", { targetString })
         .take(pageSize)
         .skip(skip)
+        .orderBy({
+          lastestFollowEvent: 'DESC',
+        })
         .getManyAndCount();
 
         const data = {

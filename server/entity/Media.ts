@@ -100,6 +100,9 @@ class Media {
   })
   public followingIds: number[];
 
+  @Column({ type: 'datetime', nullable: true })
+  public lastestFollowEvent: Date;
+
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;
 

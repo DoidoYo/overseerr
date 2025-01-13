@@ -134,8 +134,10 @@ export class MediaSubscriber implements EntitySubscriberInterface<Media> {
     if (changedEpisodes.length > 0) {
       const tmdb = new TheMovieDb();
       const userRepository = getRepository(User);
-      // const requestRepository = getRepository(MediaRequest);
-      // const processedSeasons: number[] = [];
+      entity.lastestFollowEvent = new Date();
+
+      const mediaRepository = getRepository(Media);
+      await mediaRepository.save(entity);
 
       try {
         const tv = await tmdb.getTvShow({ tvId: entity.tmdbId });
