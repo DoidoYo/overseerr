@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import type { MigrationInterface, QueryRunner } from "typeorm"
 
 export class AddFollowIdsToMedia1735431102803 implements MigrationInterface {
 
