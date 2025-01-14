@@ -1,4 +1,4 @@
-import type { SonarrSeries } from '@server/api/servarr/sonarr';
+import type { EpisodeResult, SonarrSeries } from '@server/api/servarr/sonarr';
 import SonarrAPI from '@server/api/servarr/sonarr';
 import type { TmdbTvDetails } from '@server/api/themoviedb/interfaces';
 import { getRepository } from '@server/datasource';
@@ -44,6 +44,8 @@ class SonarrScanner
     const settings = getSettings();
     const sessionId = this.startRun();
 
+    this.processSonarrCalendar();
+
     try {
       this.servers = uniqWith(settings.sonarr, (sonarrA, sonarrB) => {
         return (
@@ -55,6 +57,7 @@ class SonarrScanner
 
       for (const server of this.servers) {
         this.currentServer = server;
+
         if (server.syncEnabled) {
           this.log(
             `Beginning to process Sonarr server: ${server.name}`,
@@ -79,6 +82,80 @@ class SonarrScanner
       this.log('Scan interrupted', 'error', { errorMessage: e.message });
     } finally {
       this.endRun(sessionId);
+    }
+  }
+
+  public async processSonarrCalendar() {
+    const settings = getSettings();
+
+    try {
+      this.servers = uniqWith(settings.sonarr, (sonarrA, sonarrB) => {
+        return (
+          sonarrA.hostname === sonarrB.hostname &&
+          sonarrA.port === sonarrB.port &&
+          sonarrA.baseUrl === sonarrB.baseUrl
+        );
+      });
+
+      const mediaRepository = getRepository(Media);
+      // Reset all media nextEpisodeDate to null in one query
+      await mediaRepository
+        .createQueryBuilder()
+        .update(Media)
+        .set({ nextEpisodeDate: undefined })
+        .execute();
+
+      for (const server of this.servers) {
+        this.currentServer = server;
+
+        this.sonarrApi = new SonarrAPI({
+          apiKey: server.apiKey,
+          url: SonarrAPI.buildUrl(server, '/api/v3'),
+        });
+
+        //get next episode dates
+        const start = new Date();
+        const end = new Date();
+        end.setDate(end.getDate() + 7); // 1 week from now
+
+        const episodes = await this.sonarrApi.getCalendar(start, end);
+
+        // Group items by tvdbId
+        const groupedByTvdbId = episodes.reduce<
+          Record<number, EpisodeResult[]>
+        >((groups: Record<number, EpisodeResult[]>, episode: EpisodeResult) => {
+          const tvdbId = episode.series?.tvdbId;
+          if (tvdbId !== undefined) {
+            if (!groups[tvdbId]) {
+              groups[tvdbId] = [];
+            }
+            groups[tvdbId].push(episode);
+          }
+          return groups;
+        }, {} as Record<number, EpisodeResult[]>);
+
+        Object.entries(groupedByTvdbId).forEach(async ([tvdbId, episodes]) => {
+          const episode = episodes[0]; //first is always most recent gbf
+
+          const media = await mediaRepository.findOne({
+            where: { tvdbId: Number(tvdbId) },
+          });
+          if (!media) {
+            console.log(`unable to find media with tvbID ${tvdbId}`);
+            return;
+          }
+
+          media.nextEpisodeDate = new Date(episode.airDateUtc);
+
+          mediaRepository.save(media);
+        });
+        this.log('updated Sonarr Calendar');
+      }
+    } catch (e) {
+      this.log('Failed to process Sonarr media', 'error', {
+        errorMessage: e.message,
+        title: 'Syncing next air time',
+      });
     }
   }
 

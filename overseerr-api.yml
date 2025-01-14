@@ -4956,6 +4956,12 @@ paths:
             type: number
             nullable: true
             example: 1
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [notified, nextEp]
+            default: notified
       responses:
         '200':
           description: Following data returned

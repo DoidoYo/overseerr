@@ -13,7 +13,7 @@ export interface SonarrSeason {
     percentOfEpisodes: number;
   };
 }
-interface EpisodeResult {
+export interface EpisodeResult {
   seriesId: number;
   episodeFileId: number;
   seasonNumber: number;
@@ -27,6 +27,7 @@ interface EpisodeResult {
   absoluteEpisodeNumber: number;
   unverifiedSceneNumbering: boolean;
   id: number;
+  series?: SonarrSeries;
 }
 
 export interface SonarrSeries {
@@ -122,6 +123,16 @@ class SonarrAPI extends ServarrBase<{
       return response.data;
     } catch (e) {
       throw new Error(`[Sonarr] Failed to retrieve series: ${e.message}`);
+    }
+  }
+
+  public async getCalendar(start: Date, end: Date): Promise<EpisodeResult[]> {
+    try {
+      const response = await this.axios.get<EpisodeResult[]>(`/calendar?start=${start.toISOString()}&end=${end.toISOString()}&unmonitored=false&&includeSeries=true`);
+
+      return response.data;
+    } catch (e) {
+      throw new Error(`[Sonarr] Failed to retrieve series by ID: ${e.message}`);
     }
   }
 

@@ -23,13 +23,14 @@ const messages = defineMessages({
   following: 'Following',
   showallrequests: 'Show All Requests',
   sortLastNotified: 'Last Notified',
+  sortNextEp: 'Next Episode',
 });
 
 enum Filter {
   ALL = 'all',
 }
 
-type Sort = 'notified';
+type Sort = 'notified' | 'nextEp';
 
 const FollowingList = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const FollowingList = () => {
   } = useSWR(
     `/api/v1/following?take=${currentPageSize}&skip=${
       pageIndex * currentPageSize
-    }&userId=${currentUser?.id}`
+    }&userId=${currentUser?.id}&sort=${currentSort}`
   );
 
   // Restore last set filter values on component mount
@@ -64,7 +65,13 @@ const FollowingList = () => {
       const filterSettings = JSON.parse(filterString);
 
       setCurrentFilter(filterSettings.currentFilter);
-      setCurrentSort(filterSettings.currentSort);
+      // Validate currentSort before setting it
+      if (['notified', 'nextEp'].includes(filterSettings.currentSort)) {
+        setCurrentSort(filterSettings.currentSort);
+      } else {
+        setCurrentSort('notified'); // Default to 'notified'
+      }
+
       setCurrentPageSize(filterSettings.currentPageSize);
     }
 
@@ -169,6 +176,9 @@ const FollowingList = () => {
             >
               <option value="notified">
                 {intl.formatMessage(messages.sortLastNotified)}
+              </option>
+              <option value="nextEp">
+                {intl.formatMessage(messages.sortNextEp)}
               </option>
             </select>
           </div>

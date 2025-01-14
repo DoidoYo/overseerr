@@ -103,6 +103,9 @@ class Media {
   @Column({ type: 'datetime', nullable: true })
   public lastestFollowEvent: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  public nextEpisodeDate: Date;
+
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;
 

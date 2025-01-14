@@ -14,7 +14,12 @@ import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
-import { defineMessages, FormattedRelativeTime, useIntl } from 'react-intl';
+import {
+  defineMessages,
+  FormattedRelativeTime,
+  FormattedTime,
+  useIntl,
+} from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR from 'swr';
 
@@ -384,6 +389,24 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
                     )}
                     updateIntervalInSeconds={1}
                     numeric="auto"
+                  />
+                ) : (
+                  'NA'
+                )}
+              </span>
+            </div>
+            <div className="card-field">
+              <span className="card-field-name">{'Next Episode:'}</span>
+              <span className="flex truncate text-sm text-gray-300">
+                {media.nextEpisodeDate &&
+                Date.now() <= new Date(media.nextEpisodeDate).getTime() ? (
+                  <FormattedTime
+                    value={media.nextEpisodeDate}
+                    weekday="short"
+                    month="short"
+                    day="numeric"
+                    hour="2-digit"
+                    minute="2-digit"
                   />
                 ) : (
                   'NA'
