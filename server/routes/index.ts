@@ -56,7 +56,7 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
         (commit) => !commit.commit.message.includes('[skip ci]')
       );
       if (filteredCommits[0].sha !== commitTag) {
-        // updateAvailable = true;
+        updateAvailable = true;
       }
 
       const commitIndex = filteredCommits.findIndex(
@@ -74,7 +74,7 @@ router.get<unknown, StatusResponse>('/status', async (req, res) => {
       const latestVersion = releases[0];
 
       if (!latestVersion.name.includes(currentVersion)) {
-        // updateAvailable = true;
+        updateAvailable = true;
       }
     }
   }
