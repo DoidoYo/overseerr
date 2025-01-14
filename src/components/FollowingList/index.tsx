@@ -79,7 +79,12 @@ const FollowingList = () => {
     if (Object.values(Filter).includes(router.query.filter as Filter)) {
       setCurrentFilter(router.query.filter as Filter);
     }
-  }, [router.query.filter]);
+
+    // If sortFilter value is provided in query, use that instead
+    if (['notified', 'nextEp'].includes(router.query.sort as string)) {
+      setCurrentSort(router.query.sort as 'notified' | 'nextEp');
+    }
+  }, [router.query.filter, router.query.sort]);
 
   // Set filter values to local storage any time they are changed
   useEffect(() => {
