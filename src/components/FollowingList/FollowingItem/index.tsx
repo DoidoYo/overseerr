@@ -398,8 +398,7 @@ const FollowingItem = ({ media, revalidateList }: FollowingItemProps) => {
             <div className="card-field">
               <span className="card-field-name">{'Next Episode:'}</span>
               <span className="flex truncate text-sm text-gray-300">
-                {media.nextEpisodeDate &&
-                Date.now() <= new Date(media.nextEpisodeDate).getTime() ? (
+                {media.nextEpisodeDate ? (
                   <FormattedTime
                     value={media.nextEpisodeDate}
                     weekday="short"

@@ -104,7 +104,7 @@ class Media {
   public lastestFollowEvent: Date;
 
   @Column({ type: 'datetime', nullable: true })
-  public nextEpisodeDate: Date;
+  public nextEpisodeDate: Date | null;
 
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;

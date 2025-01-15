@@ -102,7 +102,7 @@ class SonarrScanner
       await mediaRepository
         .createQueryBuilder()
         .update(Media)
-        .set({ nextEpisodeDate: undefined })
+        .set({ nextEpisodeDate: null })
         .execute();
 
       for (const server of this.servers) {
