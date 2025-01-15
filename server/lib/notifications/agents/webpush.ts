@@ -118,6 +118,8 @@ class WebPushAgent
       ? `/issues/${payload.issue.id}`
       : payload.media
       ? `/${payload.media.mediaType}/${payload.media.tmdbId}`
+      : type === Notification.MEDIA_EPISODE_AVAILABLE
+      ? `/following?sort=notified`
       : undefined;
 
     const actionUrlTitle = actionUrl
